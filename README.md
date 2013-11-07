@@ -4,6 +4,8 @@ A RubyMotion OS X app that uses the "top" command to show your CPU usage in your
 
 For the accompanying tutorial, see: http://kickcode.com/blog/2013/11/07/rubymotion-background-process-in-status-bar-app.html
 
+![CPUTrackerMenu](https://raw.github.com/kickcode/CPUTrackerMenu/master/cputrackermenu.gif)
+
 ## Requirements
 
 * RubyMotion 2.0+
