@@ -25,6 +25,10 @@ class AppDelegate
     @status_menu.addItem createMenuItem("About #{@app_name}", 'orderFrontStandardAboutPanel:')
     @status_menu.addItem createMenuItem("Quit", 'terminate:')
 
+    @user = 0
+    @sys = 0
+    self.updateStatus
+
     self.performSelectorInBackground('startTop', withObject: nil)
   end
 
@@ -42,30 +46,22 @@ class AppDelegate
   def clickUser
     @total_item.checked = false
     @user_item.checked = !@user_item.checked
+    self.mustSelectSomething
     self.updateStatus
   end
 
   def clickSystem
     @total_item.checked = false
     @system_item.checked = !@system_item.checked
+    self.mustSelectSomething
     self.updateStatus
   end
 
-  def startTop
-    IO.popen("top -l 0") do |f|
-      while(!(line = f.gets).nil?)
-        if line[0...10] == 'CPU usage:'
-          line.gsub!("CPU usage: ", "")
-          line.split(", ")
-          @user, @sys = line.split(", ").map { |p| p.split("%").first.to_f }
-          self.updateStatus
-        end
-      end
-    end
+  def mustSelectSomething
+    @total_item.checked = true if !@user_item.checked && !@system_item.checked
   end
 
   def updateStatus
-    @total_item.checked = true if !@user_item.checked && !@system_item.checked
     if @total_item.checked
       @status_item.setTitle("CPU: #{sprintf("%.2f", @user + @sys)}%")
     else
@@ -73,6 +69,21 @@ class AppDelegate
       text << "User: #{sprintf("%.2f", @user)}%" if @user_item.checked
       text << "Sys: #{sprintf("%.2f", @sys)}%" if @system_item.checked
       @status_item.setTitle(text.join(", "))
+    end
+  end
+
+  def startTop
+    IO.popen("top -l 0") do |f|
+      while true
+        unless((line = f.gets).nil?)
+          if line[0...10] == 'CPU usage:'
+            line.gsub!("CPU usage: ", "")
+            line.split(", ")
+            @user, @sys = line.split(", ").map { |p| p.split("%").first.to_f }
+            self.updateStatus
+          end
+        end
+      end
     end
   end
 end
